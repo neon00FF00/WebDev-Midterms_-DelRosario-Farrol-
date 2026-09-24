@@ -14,7 +14,7 @@ export const loginSchema = z.object({
   }),
 });
 
-export const createEnvironmentSchema = z.object({
+export const createMicroserviceSchema = z.object({
   body: z.object({
     title: z.string().min(3, 'Title must be at least 3 characters'),
     description: z.string().min(5, 'Description must be at least 5 characters'),
@@ -22,11 +22,15 @@ export const createEnvironmentSchema = z.object({
   }),
 });
 
-export const updateEnvironmentSchema = z.object({
+export const updateMicroserviceSchema = z.object({
   body: z.object({
-    title: z.string().min(3).optional(),
-    description: z.string().min(5).optional(),
+    title: z.string().min(3, 'Title must be at least 3 characters').optional(),
+    description: z.string().min(5, 'Description must be at least 5 characters').optional(),
     environment: z.enum(['DEVELOPMENT', 'STAGING', 'PRODUCTION']).optional(),
-    serviceStatus: z.enum(['HEALTHY', 'DEGRADED', 'DOWN']).optional(),
+    serviceStatus: z.enum(['OPEN', 'IN_PROGRESS', 'RESOLVED', 'HEALTHY', 'DEGRADED', 'DOWN']).optional(),
   }),
 });
+
+export const createEnvironmentSchema = createMicroserviceSchema;
+
+export const updateEnvironmentSchema = updateMicroserviceSchema;
