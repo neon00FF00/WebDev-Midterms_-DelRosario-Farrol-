@@ -4,10 +4,10 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
 
-import { User, Enviroment, AuthRequest } from './types';
+import { User, Microservice, AuthRequest } from './types';
 import { authenticateToken } from './middleware/auth';
 import { validate } from './middleware/validate';
-import { registerSchema, loginSchema, createEnviromentSchema, updateEnviromentSchema } from './schemas/enviroment.schema';
+import { registerSchema, loginSchema, createMicroserviceSchema, updateMicroserviceSchema } from './schemas/microservice.schema';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -18,7 +18,7 @@ app.use(express.json());
 
 // In-Memory Database
 const users: User[] = [];
-const incidents: Incident[] = [];
+const microservice: Microservice[] = [];
 
 // Auth Routes
 app.post('/api/auth/register', validate(registerSchema), async (req: AuthRequest, res: Response) => {
@@ -54,56 +54,56 @@ app.post('/api/auth/login', validate(loginSchema), async (req: AuthRequest, res:
   res.json({ token, user: { id: user.id, email: user.email } });
 });
 
-// Incident Routes (Full CRUD)
-app.get('/api/incidents', authenticateToken, (_req: AuthRequest, res: Response) => {
-  res.json(incidents);
+// microservice Routes (Full CRUD)
+app.get('/api/microservice', authenticateToken, (_req: AuthRequest, res: Response) => {
+  res.json(microservice);
 });
 
-app.post('/api/incidents', authenticateToken, validate(createIncidentSchema), (req: AuthRequest, res: Response) => {
-  const { title, description, severity } = req.body;
+app.post('/api/microservice', authenticateToken, validate(createMicroserviceSchema), (req: AuthRequest, res: Response) => {
+  const { title, description, environment } = req.body;
 
-  const newIncident: Incident = {
+  const newMicroservice: Microservice = {
     id: uuidv4(),
     title,
     description,
-    severity,
+    environment,
     status: 'OPEN',
     createdById: req.user!.id,
     createdAt: new Date().toISOString(),
   };
 
-  incidents.push(newIncident);
-  res.status(201).json(newIncident);
+  microservice.push(newMicroservice);
+  res.status(201).json(newMicroservice);
 });
 
-app.put('/api/incidents/:id', authenticateToken, validate(updateIncidentSchema), (req: AuthRequest, res: Response) => {
+app.put('/api/microservice/:id', authenticateToken, validate(updateMicroserviceSchema), (req: AuthRequest, res: Response) => {
   const { id } = req.params;
-  const incidentIndex = incidents.findIndex((i) => i.id === id);
+  const microserviceIndex = microservice.findIndex((i) => i.id === id);
 
-  if (incidentIndex === -1) {
-    return res.status(404).json({ error: 'Incident not found' });
+  if (microserviceIndex === -1) {
+    return res.status(404).json({ error: 'Microservice not found' });
   }
 
-  const existingIncident = incidents[incidentIndex];
-  const updatedIncident = {
-    ...existingIncident,
+  const existingMicroservice = microservice[microserviceIndex];
+  const updatedMicroservice = {
+    ...existingMicroservice,
     ...req.body,
   };
 
-  incidents[incidentIndex] = updatedIncident;
-  res.json(updatedIncident);
+  Environment[microserviceIndex] = updatedMicroservice;
+  res.json(updatedMicroservice);
 });
 
-app.delete('/api/incidents/:id', authenticateToken, (req: AuthRequest, res: Response) => {
+app.delete('/api/microservices/:id', authenticateToken, (req: AuthRequest, res: Response) => {
   const { id } = req.params;
-  const incidentIndex = incidents.findIndex((i) => i.id === id);
+  const microserviceIndex = microservice.findIndex((i) => i.id === id);
 
-  if (incidentIndex === -1) {
-    return res.status(404).json({ error: 'Incident not found' });
+  if (microserviceIndex === -1) {
+    return res.status(404).json({ error: 'Microservice not found' });
   }
 
-  incidents.splice(incidentIndex, 1);
-  res.json({ message: 'Incident deleted successfully', id });
+  microservice.splice(microserviceIndex, 1);
+  res.json({ message: 'Microservice deleted successfully', id });
 });
 
 app.listen(PORT, () => {

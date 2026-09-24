@@ -14,19 +14,19 @@ export const loginSchema = z.object({
   }),
 });
 
-export const createEnviromentSchema = z.object({
+export const createEnvironmentSchema = z.object({
   body: z.object({
     title: z.string().min(3, 'Title must be at least 3 characters'),
     description: z.string().min(5, 'Description must be at least 5 characters'),
-    severity: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']),
+    environment: z.enum(['DEVELOPMENT', 'STAGING', 'PRODUCTION']),
   }),
 });
 
-export const updateEnviromentSchema = z.object({
+export const updateEnvironmentSchema = z.object({
   body: z.object({
     title: z.string().min(3).optional(),
     description: z.string().min(5).optional(),
-    severity: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),
-    status: z.enum(['OPEN', 'IN_PROGRESS', 'RESOLVED']).optional(),
+    environment: z.enum(['DEVELOPMENT', 'STAGING', 'PRODUCTION']).optional(),
+    status: z.enum(['HEALTHY', 'DEGRADED', 'DOWN']).optional(),
   }),
 });

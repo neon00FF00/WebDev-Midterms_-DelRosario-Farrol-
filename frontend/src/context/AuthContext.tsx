@@ -3,12 +3,12 @@ import type { User } from '../types';
 
 interface AuthState { token: string | null; user: User | null; }
 type Action = { type: 'restore'; payload: AuthState } | { type: 'logout' };
-const initialState: AuthState = { token: localStorage.getItem('pulsedesk_token'), user: null };
+const initialState: AuthState = { token: localStorage.getItem('servicehubtoken'), user: null };
 const AuthContext = createContext<{ state: AuthState; logout: () => void }>({ state: initialState, logout: () => undefined });
 
 function reducer(state: AuthState, action: Action): AuthState {
   if (action.type === 'restore') return action.payload;
-  localStorage.removeItem('pulsedesk_token');
+  localStorage.removeItem('servicehub_token');
   return { token: null, user: null };
 }
 

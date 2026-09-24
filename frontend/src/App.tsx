@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { useIncidents } from './context/IncidentContext';
+import { useMicroservices } from './context/MicroserviceContext';
 import { Enviroment, Status } from './types';
+import { Environment } from 'vite';
 
 export const App: React.FC = () => {
-  const { state, login, register, logout, createIncident, updateIncident, deleteIncident } = useIncidents();
+  const { state, login, register, logout, createMicroservice, updateMicroservice, deleteMicroservice } = useMicroservices();
 
   // Auth Form State
   const [isRegister, setIsRegister] = useState(false);
@@ -13,7 +14,7 @@ export const App: React.FC = () => {
   // Create Incident Form State
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [severity, setSeverity] = useState<Severity>('LOW');
+  const [environment, setEnvironment] = useState<Environment>('DEVELOPMENT');
 
   const handleAuthSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,10 +27,10 @@ export const App: React.FC = () => {
 
   const handleCreateSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    createIncident({ title, description, severity });
+    createMicroservice({ title, description, environment });
     setTitle('');
     setDescription('');
-    setSeverity('LOW');
+    setEnvironment('DEVELOPMENT');
   };
 
   if (!state.token) {
@@ -78,24 +79,24 @@ export const App: React.FC = () => {
       {state.error && <p style={styles.error}>{state.error}</p>}
 
       <section style={styles.section}>
-        <h3>Submit Incident Ticket</h3>
+        <h3>Submit Microservice Ticket</h3>
         <form onSubmit={handleCreateSubmit} style={styles.createForm}>
           <input
             type="text"
-            placeholder="Incident Title"
+            placeholder="Microservice Title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             required
             style={styles.input}
           />
           <textarea
-            placeholder="Incident Description"
+            placeholder="Microservice Description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             required
             style={styles.textarea}
           />
-          <select value={severity} onChange={(e) => setEnviroment(e.target.value as Enviroment)} style={styles.select}>
+          <select value={environment} onChange={(e) => setEnvironment(e.target.value as Environment)} style={styles.select}>
             <option value="DEVELOPMENT">DEVELOPMENT</option>
             <option value="STAGING">STAGING</option>
             <option value="PRODUCTION">PRODUCTION</option>
@@ -105,28 +106,28 @@ export const App: React.FC = () => {
       </section>
 
       <section style={styles.section}>
-        <h3>Active Incidents ({state.incidents.length})</h3>
-        {state.loading && <p>Loading incidents...</p>}
+        <h3>Active Microservices ({state.microservices.length})</h3>
+        {state.loading && <p>Loading microservices...</p>}
         <div style={styles.cardList}>
-          {state.incidents.map((incident) => (
-            <div key={incident.id} style={styles.card}>
-              <h4>{incident.title}</h4>
-              <p>{incident.description}</p>
+          {state.microservices.map((microservice) => (
+            <div key={microservice.id} style={styles.card}>
+              <h4>{microservice.title}</h4>
+              <p>{microservice.description}</p>
               <div style={styles.cardMeta}>
-                <span><strong>Severity:</strong> {incident.severity}</span>
+                <span><strong>Severity:</strong> {microservice.environment}</span>
                 <span>
                   <strong>Status:</strong>{' '}
                   <select
-                    value={incident.status}
-                    onChange={(e) => updateIncident(incident.id, { status: e.target.value as Status })}
+                    value={microservice.status}
+                    onChange={(e) => updateMicroservice(microservice.id, { status: e.target.value as Status })}
                   >
-                    <option value="OPEN">OPEN</option>
-                    <option value="IN_PROGRESS">IN_PROGRESS</option>
-                    <option value="RESOLVED">RESOLVED</option>
+                    <option value="HEALTHY">HEALTHY</option>
+                    <option value="DEGRADED">DEGRADED</option>
+                    <option value="DOWN">DOWN</option>
                   </select>
                 </span>
               </div>
-              <button onClick={() => deleteIncident(incident.id)} style={styles.deleteBtn}>
+              <button onClick={() => deleteMicroservice(microservice.id)} style={styles.deleteBtn}>
                 Delete Ticket
               </button>
             </div>

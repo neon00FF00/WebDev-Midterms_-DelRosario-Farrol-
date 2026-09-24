@@ -1,5 +1,5 @@
 import React, { createContext, useReducer, useContext, ReactNode, useEffect } from 'react';
-import { State, Action, Incident, Severity, Status } from '../types';
+import { State, Action, Microservice, Environment, Status } from '../types';
 
 const API_BASE = 'http://localhost:5000/api';
 
@@ -11,7 +11,7 @@ const initialState: State = {
   error: null,
 };
 
-function incidentReducer(state: State, action: Action): State {
+function microserviceReducer(state: State, action: Action): State {
   switch (action.type) {
     case 'SET_LOADING':
       return { ...state, loading: action.payload, error: null };
@@ -20,21 +20,21 @@ function incidentReducer(state: State, action: Action): State {
     case 'LOGOUT':
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      return { ...state, user: null, token: null, incidents: [] };
+      return { ...state, user: null, token: null, microservices: [] };
     case 'FETCH_SUCCESS':
-      return { ...state, incidents: action.payload, loading: false };
+      return { ...state, microservices: action.payload, loading: false };
     case 'CREATE_SUCCESS':
-      return { ...state, incidents: [action.payload, ...state.incidents], loading: false };
+      return { ...state, microservices: [action.microservices, ...state.microservices], loading: false };
     case 'UPDATE_SUCCESS':
       return {
         ...state,
-        incidents: state.incidents.map((inc) => (inc.id === action.payload.id ? action.payload : inc)),
+        microservices: state.microservices.map((inc) => (inc.id === action.payload.id ? action.payload : inc)),
         loading: false,
       };
     case 'DELETE_SUCCESS':
       return {
         ...state,
-        incidents: state.incidents.filter((inc) => inc.id !== action.payload),
+        microservices: state.microservices.filter((inc) => inc.id !== action.payload),
         loading: false,
       };
     case 'SET_ERROR':
@@ -44,22 +44,22 @@ function incidentReducer(state: State, action: Action): State {
   }
 }
 
-interface IncidentContextType {
+interface MicroservicesContextType {
   state: State;
   dispatch: React.Dispatch<Action>;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string) => Promise<void>;
   logout: () => void;
-  fetchIncidents: () => Promise<void>;
-  createIncident: (data: { title: string; description: string; severity: Severity }) => Promise<void>;
-  updateIncident: (id: string, updates: Partial<{ title: string; description: string; severity: Severity; status: Status }>) => Promise<void>;
-  deleteIncident: (id: string) => Promise<void>;
+  fetchMicroservices: () => Promise<void>;
+  createMicroservice: (data: { title: string; description: string; severity: Environment }) => Promise<void>;
+  updateMicroservice: (id: string, updates: Partial<{ title: string; description: string; environment: Environment; status: Status }>) => Promise<void>;
+  deleteMicroservice: (id: string) => Promise<void>;
 }
 
-const IncidentContext = createContext<IncidentContextType | undefined>(undefined);
+const MicroserviceContext = createContext<MicroserviceContextType | undefined>(undefined);
 
-export const IncidentProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [state, dispatch] = useReducer(incidentReducer, initialState);
+export const MicroserviceProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [state, dispatch] = useReducer(microserviceReducer, initialState);
 
   const authFetch = async (url: string, options: RequestInit = {}) => {
     const headers = {
@@ -117,7 +117,7 @@ export const IncidentProvider: React.FC<{ children: ReactNode }> = ({ children }
     dispatch({ type: 'LOGOUT' });
   };
 
-  const fetchIncidents = async () => {
+  const fetchEnvironments = async () => {
     dispatch({ type: 'SET_LOADING', payload: true });
     try {
       const data = await authFetch('/incidents');
@@ -127,10 +127,10 @@ export const IncidentProvider: React.FC<{ children: ReactNode }> = ({ children }
     }
   };
 
-  const createIncident = async (payload: { title: string; description: string; severity: Severity }) => {
+  const createMicroservice = async (payload: { title: string; description: string; environment: Environment }) => {
     dispatch({ type: 'SET_LOADING', payload: true });
     try {
-      const data = await authFetch('/incidents', {
+      const data = await authFetch('/microservices', {
         method: 'POST',
         body: JSON.stringify(payload),
       });
@@ -140,10 +140,10 @@ export const IncidentProvider: React.FC<{ children: ReactNode }> = ({ children }
     }
   };
 
-  const updateIncident = async (id: string, updates: Partial<{ title: string; description: string; severity: Severity; status: Status }>) => {
+  const updateMicroservice = async (id: string, updates: Partial<{ title: string; description: string; environment: Environment; status: Status }>) => {
     dispatch({ type: 'SET_LOADING', payload: true });
     try {
-      const data = await authFetch(`/incidents/${id}`, {
+      const data = await authFetch(`/microservices/${id}`, {
         method: 'PUT',
         body: JSON.stringify(updates),
       });
@@ -153,7 +153,7 @@ export const IncidentProvider: React.FC<{ children: ReactNode }> = ({ children }
     }
   };
 
-  const deleteIncident = async (id: string) => {
+  const deleteMicroservice = async (id: string) => {
     dispatch({ type: 'SET_LOADING', payload: true });
     try {
       await authFetch(`/incidents/${id}`, { method: 'DELETE' });
@@ -165,33 +165,33 @@ export const IncidentProvider: React.FC<{ children: ReactNode }> = ({ children }
 
   useEffect(() => {
     if (state.token) {
-      fetchIncidents();
+      fetchMicroservice();
     }
   }, [state.token]);
 
   return (
-    <IncidentContext.Provider
+    <MicroserviceContext.Provider
       value={{
         state,
         dispatch,
         login,
         register,
         logout,
-        fetchIncidents,
-        createIncident,
-        updateIncident,
-        deleteIncident,
+        fetchMicroservices,
+        createMicroservice,
+        updateMicroservice,
+        deleteMicroservice,
       }}
     >
       {children}
-    </IncidentContext.Provider>
+    </MicroserviceContext.Provider>
   );
 };
 
-export const useIncidents = () => {
-  const context = useContext(IncidentContext);
+export const useMicroservices = () => {
+  const context = useContext(MicroserviceContext);
   if (!context) {
-    throw new Error('useIncidents must be used within an IncidentProvider');
+    throw new Error('useMicroservices must be used within an MicroserviceProvider');
   }
   return context;
 };
