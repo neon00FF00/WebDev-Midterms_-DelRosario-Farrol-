@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useMicroservices } from './context/MicroserviceContext';
-import { Environment, Status } from './types';
+
+type Environment = 'DEVELOPMENT' | 'STAGING' | 'PRODUCTION';
+type Status = 'HEALTHY' | 'DEGRADED' | 'DOWN';
 
 export const App: React.FC = () => {
   const { state, login, register, logout, createMicroservice, updateMicroservice, deleteMicroservice } = useMicroservices();
@@ -113,7 +115,7 @@ export const App: React.FC = () => {
               <h4>{microservice.title}</h4>
               <p>{microservice.description}</p>
               <div style={styles.cardMeta}>
-                <span><strong>Environmnet:</strong> {microservice.environment}</span>
+                <span><strong>Environment:</strong> {microservice.environment}</span>
                 <span>
                   <strong>Status:</strong>{' '}
                   <select

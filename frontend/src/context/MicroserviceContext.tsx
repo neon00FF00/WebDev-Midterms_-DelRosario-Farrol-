@@ -1,17 +1,32 @@
 import React, { createContext, useReducer, useContext, ReactNode, useEffect } from 'react';
-import { State, Action, Microservice, Environment, Status } from '../types';
+import { State } from '../types';
+
+type Environment = string;
+type Status = string;
+type MicroserviceState = State & { microservices: any[] };
+type MicroserviceAction =
+  | { type: 'SET_LOADING'; payload: boolean }
+  | { type: 'SET_AUTH'; payload: { user: any; token: string } }
+  | { type: 'LOGOUT' }
+  | { type: 'FETCH_SUCCESS'; payload: any[] }
+  | { type: 'CREATE_SUCCESS'; payload: any }
+  | { type: 'UPDATE_SUCCESS'; payload: any }
+  | { type: 'DELETE_SUCCESS'; payload: string }
+  | { type: 'SET_ERROR'; payload: string };
 
 const API_BASE = 'http://localhost:5000/api';
 
-const initialState: State = {
+const initialState: MicroserviceState = {
   user: JSON.parse(localStorage.getItem('user') || 'null'),
   token: localStorage.getItem('token'),
+  services: [],
+  selectedEnvironment: '',
   microservices: [],
   loading: false,
   error: null,
 };
 
-function microserviceReducer(state: State, action: Action): State {
+function microserviceReducer(state: MicroserviceState, action: MicroserviceAction): MicroserviceState {
   switch (action.type) {
     case 'SET_LOADING':
       return { ...state, loading: action.payload, error: null };
@@ -20,11 +35,11 @@ function microserviceReducer(state: State, action: Action): State {
     case 'LOGOUT':
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      return { ...state, user: null, token: null, microservice: [] };
+      return { ...state, user: null, token: null, microservices: [] };
     case 'FETCH_SUCCESS':
       return { ...state, microservices: action.payload, loading: false };
     case 'CREATE_SUCCESS':
-      return { ...state, microservices: [action.microservices, ...state.microservices], loading: false };
+      return { ...state, microservices: [action.payload, ...state.microservices], loading: false };
     case 'UPDATE_SUCCESS':
       return {
         ...state,
@@ -44,9 +59,9 @@ function microserviceReducer(state: State, action: Action): State {
   }
 }
 
-interface MicroservicesContextType {
-  state: State;
-  dispatch: React.Dispatch<Action>;
+interface MicroserviceContextType {
+  state: MicroserviceState;
+  dispatch: React.Dispatch<MicroserviceAction>;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string) => Promise<void>;
   logout: () => void;
@@ -117,7 +132,7 @@ export const MicroserviceProvider: React.FC<{ children: ReactNode }> = ({ childr
     dispatch({ type: 'LOGOUT' });
   };
 
-  const fetchEnvironments = async () => {
+  const fetchMicroservices = async () => {
     dispatch({ type: 'SET_LOADING', payload: true });
     try {
       const data = await authFetch('/microservices');
