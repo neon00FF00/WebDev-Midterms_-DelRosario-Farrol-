@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useIncidents } from './context/IncidentContext';
-import { Severity, Status } from './types';
+import { Enviroment, Status } from './types';
 
 export const App: React.FC = () => {
   const { state, login, register, logout, createIncident, updateIncident, deleteIncident } = useIncidents();
@@ -35,7 +35,7 @@ export const App: React.FC = () => {
   if (!state.token) {
     return (
       <div style={styles.authContainer}>
-        <h2>{isRegister ? 'Register' : 'Login'} - PulseDesk</h2>
+        <h2>{isRegister ? 'Register' : 'Login'} - ServiceHub</h2>
         {state.error && <p style={styles.error}>{state.error}</p>}
         <form onSubmit={handleAuthSubmit} style={styles.form}>
           <input
@@ -95,11 +95,10 @@ export const App: React.FC = () => {
             required
             style={styles.textarea}
           />
-          <select value={severity} onChange={(e) => setSeverity(e.target.value as Severity)} style={styles.select}>
-            <option value="LOW">LOW</option>
-            <option value="MEDIUM">MEDIUM</option>
-            <option value="HIGH">HIGH</option>
-            <option value="CRITICAL">CRITICAL</option>
+          <select value={severity} onChange={(e) => setEnviroment(e.target.value as Enviroment)} style={styles.select}>
+            <option value="DEVELOPMENT">DEVELOPMENT</option>
+            <option value="STAGING">STAGING</option>
+            <option value="PRODUCTION">PRODUCTION</option>
           </select>
           <button type="submit" disabled={state.loading} style={styles.button}>Submit Ticket</button>
         </form>
