@@ -27,6 +27,6 @@ export const updateEnvironmentSchema = z.object({
     title: z.string().min(3).optional(),
     description: z.string().min(5).optional(),
     environment: z.enum(['DEVELOPMENT', 'STAGING', 'PRODUCTION']).optional(),
-    status: z.enum(['HEALTHY', 'DEGRADED', 'DOWN']).optional(),
+    serviceStatus: z.enum(['HEALTHY', 'DEGRADED', 'DOWN']).optional(),
   }),
 });

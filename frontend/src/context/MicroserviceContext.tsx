@@ -1,12 +1,12 @@
 import React, { createContext, useReducer, useContext, ReactNode, useEffect } from 'react';
-import { State, Action, Microservice, Environment, Status } from '../types';
+import { State, Action, Microservice, Environment, ServiceStatus } from '../types';
 
 const API_BASE = 'http://localhost:5000/api';
 
 const initialState: State = {
   user: JSON.parse(localStorage.getItem('user') || 'null'),
   token: localStorage.getItem('token'),
-  incidents: [],
+  microservices: [],
   loading: false,
   error: null,
 };
@@ -20,7 +20,7 @@ function microserviceReducer(state: State, action: Action): State {
     case 'LOGOUT':
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      return { ...state, user: null, token: null, microservices: [] };
+      return { ...state, user: null, token: null, microservice: [] };
     case 'FETCH_SUCCESS':
       return { ...state, microservices: action.payload, loading: false };
     case 'CREATE_SUCCESS':
@@ -51,8 +51,8 @@ interface MicroservicesContextType {
   register: (email: string, password: string) => Promise<void>;
   logout: () => void;
   fetchMicroservices: () => Promise<void>;
-  createMicroservice: (data: { title: string; description: string; severity: Environment }) => Promise<void>;
-  updateMicroservice: (id: string, updates: Partial<{ title: string; description: string; environment: Environment; status: Status }>) => Promise<void>;
+  createMicroservice: (data: { title: string; description: string; environment: Environment }) => Promise<void>;
+  updateMicroservice: (id: string, updates: Partial<{ title: string; description: string; environment: Environment; serviceStatus: serviceStatus }>) => Promise<void>;
   deleteMicroservice: (id: string) => Promise<void>;
 }
 
@@ -120,7 +120,7 @@ export const MicroserviceProvider: React.FC<{ children: ReactNode }> = ({ childr
   const fetchEnvironments = async () => {
     dispatch({ type: 'SET_LOADING', payload: true });
     try {
-      const data = await authFetch('/incidents');
+      const data = await authFetch('/microservices');
       dispatch({ type: 'FETCH_SUCCESS', payload: data });
     } catch (err: any) {
       dispatch({ type: 'SET_ERROR', payload: err.message });
@@ -140,7 +140,7 @@ export const MicroserviceProvider: React.FC<{ children: ReactNode }> = ({ childr
     }
   };
 
-  const updateMicroservice = async (id: string, updates: Partial<{ title: string; description: string; environment: Environment; status: Status }>) => {
+  const updateMicroservice = async (id: string, updates: Partial<{ title: string; description: string; environment: Environment; serviceStatus: serviceStatus }>) => {
     dispatch({ type: 'SET_LOADING', payload: true });
     try {
       const data = await authFetch(`/microservices/${id}`, {
@@ -156,7 +156,7 @@ export const MicroserviceProvider: React.FC<{ children: ReactNode }> = ({ childr
   const deleteMicroservice = async (id: string) => {
     dispatch({ type: 'SET_LOADING', payload: true });
     try {
-      await authFetch(`/incidents/${id}`, { method: 'DELETE' });
+      await authFetch(`/microservices/${id}`, { method: 'DELETE' });
       dispatch({ type: 'DELETE_SUCCESS', payload: id });
     } catch (err: any) {
       dispatch({ type: 'SET_ERROR', payload: err.message });
@@ -165,7 +165,7 @@ export const MicroserviceProvider: React.FC<{ children: ReactNode }> = ({ childr
 
   useEffect(() => {
     if (state.token) {
-      fetchMicroservice();
+      fetchMicroservices();
     }
   }, [state.token]);
 

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useMicroservices } from './context/MicroserviceContext';
-import { Enviroment, Status } from './types';
-import { Environment } from 'vite';
+import { Enviroment, serviceStatus } from './types';
 
 export const App: React.FC = () => {
   const { state, login, register, logout, createMicroservice, updateMicroservice, deleteMicroservice } = useMicroservices();
@@ -11,7 +10,7 @@ export const App: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  // Create Incident Form State
+  // Create Microservice Form State
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [environment, setEnvironment] = useState<Environment>('DEVELOPMENT');
@@ -69,7 +68,7 @@ export const App: React.FC = () => {
   return (
     <div style={styles.dashboard}>
       <header style={styles.header}>
-        <h1>PulseDesk Incident Center</h1>
+        <h1>Microservice Center</h1>
         <div>
           <span>User: {state.user?.email}</span>
           <button onClick={logout} style={styles.logoutBtn}>Logout</button>
@@ -114,12 +113,12 @@ export const App: React.FC = () => {
               <h4>{microservice.title}</h4>
               <p>{microservice.description}</p>
               <div style={styles.cardMeta}>
-                <span><strong>Severity:</strong> {microservice.environment}</span>
+                <span><strong>Environmnet:</strong> {microservice.environment}</span>
                 <span>
                   <strong>Status:</strong>{' '}
                   <select
                     value={microservice.status}
-                    onChange={(e) => updateMicroservice(microservice.id, { status: e.target.value as Status })}
+                    onChange={(e) => updateMicroservice(microservice.id, { serviceStatus: e.target.value as serviceStatus })}
                   >
                     <option value="HEALTHY">HEALTHY</option>
                     <option value="DEGRADED">DEGRADED</option>

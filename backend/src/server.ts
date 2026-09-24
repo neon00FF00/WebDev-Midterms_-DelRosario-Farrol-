@@ -4,7 +4,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
 
-import { User, Microservice, AuthRequest } from './types';
+import { User, Microservice, AuthRequest } from '../types';
 import { authenticateToken } from './middleware/auth';
 import { validate } from './middleware/validate';
 import { registerSchema, loginSchema, createMicroserviceSchema, updateMicroserviceSchema } from './schemas/microservice.schema';
@@ -67,7 +67,7 @@ app.post('/api/microservice', authenticateToken, validate(createMicroserviceSche
     title,
     description,
     environment,
-    status: 'OPEN',
+    serviceStatus: 'OPEN',
     createdById: req.user!.id,
     createdAt: new Date().toISOString(),
   };
@@ -90,7 +90,7 @@ app.put('/api/microservice/:id', authenticateToken, validate(updateMicroserviceS
     ...req.body,
   };
 
-  Environment[microserviceIndex] = updatedMicroservice;
+  microservice[microserviceIndex] = updatedMicroservice;
   res.json(updatedMicroservice);
 });
 
@@ -107,5 +107,5 @@ app.delete('/api/microservices/:id', authenticateToken, (req: AuthRequest, res: 
 });
 
 app.listen(PORT, () => {
-  console.log(`PulseDesk Backend running on http://localhost:${PORT}`);
+  console.log(`MicroService Backend running on http://localhost:${PORT}`);
 });
