@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useMicroservices } from './context/MicroserviceContext';
-import { Enviroment, serviceStatus } from './types';
+import { Environment, Status } from './types';
 
 export const App: React.FC = () => {
   const { state, login, register, logout, createMicroservice, updateMicroservice, deleteMicroservice } = useMicroservices();
@@ -118,7 +118,7 @@ export const App: React.FC = () => {
                   <strong>Status:</strong>{' '}
                   <select
                     value={microservice.status}
-                    onChange={(e) => updateMicroservice(microservice.id, { serviceStatus: e.target.value as serviceStatus })}
+                    onChange={(e) => updateMicroservice(microservice.id, { Status: e.target.value as Status })}
                   >
                     <option value="HEALTHY">HEALTHY</option>
                     <option value="DEGRADED">DEGRADED</option>

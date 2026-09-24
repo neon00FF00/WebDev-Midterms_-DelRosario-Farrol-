@@ -1,5 +1,5 @@
 import React, { createContext, useReducer, useContext, ReactNode, useEffect } from 'react';
-import { State, Action, Microservice, Environment, ServiceStatus } from '../types';
+import { State, Action, Microservice, Environment, Status } from '../types';
 
 const API_BASE = 'http://localhost:5000/api';
 
@@ -52,7 +52,7 @@ interface MicroservicesContextType {
   logout: () => void;
   fetchMicroservices: () => Promise<void>;
   createMicroservice: (data: { title: string; description: string; environment: Environment }) => Promise<void>;
-  updateMicroservice: (id: string, updates: Partial<{ title: string; description: string; environment: Environment; serviceStatus: serviceStatus }>) => Promise<void>;
+  updateMicroservice: (id: string, updates: Partial<{ title: string; description: string; environment: Environment; Status: Status }>) => Promise<void>;
   deleteMicroservice: (id: string) => Promise<void>;
 }
 
@@ -140,7 +140,7 @@ export const MicroserviceProvider: React.FC<{ children: ReactNode }> = ({ childr
     }
   };
 
-  const updateMicroservice = async (id: string, updates: Partial<{ title: string; description: string; environment: Environment; serviceStatus: serviceStatus }>) => {
+  const updateMicroservice = async (id: string, updates: Partial<{ title: string; description: string; environment: Environment; Status: Status }>) => {
     dispatch({ type: 'SET_LOADING', payload: true });
     try {
       const data = await authFetch(`/microservices/${id}`, {
